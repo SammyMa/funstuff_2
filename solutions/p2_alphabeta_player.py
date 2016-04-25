@@ -12,16 +12,28 @@ class AlphaBetaPlayer(Player):
         :param state: State, the current state of the board.
         :return: Action, the next move
         """
-	u = self.max_value(state, float("-inf"), float("inf"))
+#u = self.max_value(state, float("-inf"), float("inf"))
+#	v = self.min_value(state, float("-inf"), float("inf"))
+        u = float("inf")
+	v = float("-inf")
+	result = None
+	"""for a in state.actions():
+	    new = self.min_value(state.result(a), float("-inf"), float("inf"))
+	    if new <= u:
+	      u = new
+	      result = a
+	  return result
+	else:"""
 	for a in state.actions():
-	  new = self.min_value(state.result(a), float("-inf"), float("inf"))
-	  if new == u:
-	    return a
-	return None
+          new = self.max_value(state.result(a), float("-inf"), float("inf"))
+	  if new >= v:
+	    v = new
+	    result = a
+	return result
 
     def max_value(self, state, alpha, beta):
 	if state.is_terminal():
-	  return state.utility(state.player)
+	  return state.utility(self)
 	if len(state.actions()) == 0:
 	  return self.min_value(state.result(None), alpha, beta)
 	u = float("-inf")
@@ -34,7 +46,7 @@ class AlphaBetaPlayer(Player):
 
     def min_value(self, state, alpha, beta):
 	if state.is_terminal():
-	  return state.utility(state.player)
+	  return state.utility(self)
 	if len(state.actions()) == 0:
 	  return self.max_value(state.result(None), alpha, beta)
 	u = float("inf")

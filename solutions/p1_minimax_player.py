@@ -16,16 +16,18 @@ class MinimaxPlayer(Player):
         :return: Action, the next move
         """
         """ utility follows by action"""
-	amax = (-2, None)
+	amin = (-2, None)
 	#self.cache[amax] = float("-inf")
+        """check for which player we are dealing with"""
+	
 	for a in state.actions():
-          """ new is utility"""
-	  new = self.min_val(state.result(a))
-	  if new > amax[0]:
-	    amax = (new, a)
-	  elif new == amax[0]:
-            if a.index <= amax[1].index:
-	      amax = (new,a)
+          new = self.max_val(state.result(a))
+	  if new >= amin[0]:
+ 	    amin = (new, a)
+	  """elif new == amin[0]:
+	    if a.index < amin[1].index:
+	      amin = (new, a)"""
+	return amin[1]
 	#amax = self.cache.keys().pop();
 	#for k in self.cache.keys():
 	#  if self.cache[k] > self.cache[amax]:
@@ -33,7 +35,6 @@ class MinimaxPlayer(Player):
 	#  if self.cache[k] == self.cache[amax]:
 	#    if k.index < amax.index:
 	#      amax = k
-        return amax[1]
 	#return max(self.cache, key = lambda k: self.cache[k])
 
     def max_val(self, state):
