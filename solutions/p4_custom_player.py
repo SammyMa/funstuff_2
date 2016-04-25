@@ -26,5 +26,5 @@ class PleasePleaseChangeThisToSomethingSomethingPlayer(Player):
         :param state: State, the current state of the board.
         :return: Action, the next move
         """
-        raise NotImplementedError("Need to implement this method")
-
+	for index in range (0, state.M):
+	  

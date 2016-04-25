@@ -35,4 +35,20 @@ class EvaluationPlayer(Player):
         """
         Evaluates the state for the player with the given row
         """
-        raise NotImplementedError("Need to implement this method")
+	stoneonmyside = 0.00
+	stoneonopside = 0.00
+	result = 0.00
+	for a in range(0,state.M+1):
+	  stoneonmyside += state.board[a]
+        
+	for a in range(state.M+1, 2*(state.M)+1):
+	  stoneonopside += state.board[a]
+
+	if my_row == 0:
+	  result = (stoneonmyside - stoneonopside) / (2*(state.M)*(state.N))
+	else:
+	  result = (stoneonopside - stoneonmyside) / (2*(state.M)*(state.N))
+	#print("result is %f" % result)
+	return result
+	
+
