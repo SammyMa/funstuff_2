@@ -6,7 +6,7 @@ from assignment2 import Player, State, Action
 
 class AlphaBetaPlayer(Player):
 
-    transposition = set()
+    transposition = {}
 
     def move(self, state):
         """Calculates the best move from the given board using the minimax
@@ -18,12 +18,13 @@ class AlphaBetaPlayer(Player):
 	v = float("-inf")
 	result = None
 
-	self.transposition.add(state.ser())
+	self.transposition[state.ser()] = result
 	for a in state.actions():
 	  if state.result(a).ser() in self.transposition:
-	    break
-	  self.transposition.add(state.result(a).ser())
-          new = self.max_value(state.result(a), float("-inf"), float("inf"))
+	    new = self.transposition[state.result(a).ser]
+	  else:
+            new = self.max_value(state.result(a), float("-inf"), float("inf"))
+	    self.transposition[state.result(a).ser()] = new
 	  if new >= v:
 	    v = new
 	    result = a
@@ -37,9 +38,10 @@ class AlphaBetaPlayer(Player):
 	u = float("-inf")
 	for a in state.actions():
 	  if state.result(a).ser() in self.transposition:
-	    break
-	  u = max(u, self.min_value(state.result(a), alpha, beta))
-	  self.transposition.add(state.result(a).ser())
+	    u = self.transposition[state.result(a).ser()]
+	  else:
+	    u = max(u, self.min_value(state.result(a), alpha, beta))
+	    self.transposition[state.result(a).ser()] = u
 	  
 	  if u >= beta:
 	    return u
@@ -54,9 +56,10 @@ class AlphaBetaPlayer(Player):
 	u = float("inf")
 	for a in state.actions():
 	  if state.result(a).ser() in self.transposition:
-	    break
-	  self.transposition.add(state.result(a).ser())
-	  u = min(u, self.max_value(state.result(a), alpha, beta))
+	    u = self.transposition[state.result(a).ser()]
+	  else:
+	    u = min(u, self.max_value(state.result(a), alpha, beta))
+	    self.transposition[state.result(a).ser()] = u
 	  if u <= alpha:
 	    return u
 	  beta = min(beta, u)

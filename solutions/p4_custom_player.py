@@ -34,7 +34,7 @@ class CustomPlayer(Player):
 	success = False
 	maxDepthLimit = state.M*state.N+1
 
-	while self.is_time_up() == False and self.currentDepthLimit < maxDepthLimit:
+	while self.is_time_up() == False and self.currentDepthLimit <= maxDepthLimit:
           """Clear the transposition table"""
 	  self.transposition = set() 
 	  self.currentDepthLimit += 1
@@ -58,11 +58,11 @@ class CustomPlayer(Player):
 	return result
 
     def max_value(self, state, alpha, beta, depth):
-	self.maxDepth = max(self.maxDepth, depth)
+#iself.maxDepth = max(self.maxDepth, depth)
 	if state.is_terminal():
 	  return state.utility(self)
 
-	if self.is_time_up() or depth >= self.currentDepthLimit:
+	if self.is_time_up() or depth > self.currentDepthLimit:
 	  return self.evaluate(state, state.player_row)
 
 	if len(state.actions()) == 0:
@@ -85,11 +85,11 @@ class CustomPlayer(Player):
 
 
     def min_value(self, state, alpha, beta, depth):
-	self.maxDepth = max(self.maxDepth, depth)
+#	self.maxDepth = max(self.maxDepth, depth)
 	if state.is_terminal():
 	  return state.utility(self)
 
-	if self.is_time_up() or depth >= self.currentDepthLimit:
+	if self.is_time_up() or depth > self.currentDepthLimit:
 	  return self.evaluate(state, state.player_row)
 
 	if len(state.actions()) == 0:
