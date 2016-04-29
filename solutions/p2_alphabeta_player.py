@@ -18,17 +18,16 @@ class AlphaBetaPlayer(Player):
 	v = float("-inf")
 	result = None
 
-	self.transposition[state.ser()] = result
 	for a in state.actions():
-	  if state.result(a).ser() in self.transposition:
-	    new = self.transposition[state.result(a).ser]
-	  else:
-            new = self.max_value(state.result(a), float("-inf"), float("inf"))
-	    self.transposition[state.result(a).ser()] = new
-	  if new >= v:
+          new = self.min_value(state.result(a), float("-inf"), float("inf"))
+	  if new > v:
 	    v = new
 	    result = a
+	  elif new == v:
+	    if a.index < result.index:
+	      result = a
 	return result
+
 
     def max_value(self, state, alpha, beta):
 	if state.is_terminal():
@@ -38,15 +37,17 @@ class AlphaBetaPlayer(Player):
 	u = float("-inf")
 	for a in state.actions():
 	  if state.result(a).ser() in self.transposition:
-	    u = self.transposition[state.result(a).ser()]
+	    v = self.transposition[state.result(a).ser()]
 	  else:
-	    u = max(u, self.min_value(state.result(a), alpha, beta))
-	    self.transposition[state.result(a).ser()] = u
+	    v = self.min_value(state.result(a), alpha, beta)
+	  u = max(u,v)   
+	  self.transposition[state.result(a).ser()] = u
 	  
 	  if u >= beta:
 	    return u
 	  alpha = max(alpha, u)
 	return u
+
 
     def min_value(self, state, alpha, beta):
 	if state.is_terminal():
@@ -56,10 +57,12 @@ class AlphaBetaPlayer(Player):
 	u = float("inf")
 	for a in state.actions():
 	  if state.result(a).ser() in self.transposition:
-	    u = self.transposition[state.result(a).ser()]
+	    v = self.transposition[state.result(a).ser()]
 	  else:
-	    u = min(u, self.max_value(state.result(a), alpha, beta))
-	    self.transposition[state.result(a).ser()] = u
+	    v = self.max_value(state.result(a), alpha, beta)
+	  u = min(u,v)  
+	  self.transposition[state.result(a).ser()] = u
+	  
 	  if u <= alpha:
 	    return u
 	  beta = min(beta, u)

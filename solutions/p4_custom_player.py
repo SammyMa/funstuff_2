@@ -17,7 +17,7 @@ class CustomPlayer(Player):
         For technical people: make sure the objects are picklable. Otherwise
         it won't work under time limit.
         """
-  	self.transposition = set()
+  	self.transposition = {}
         self.maxDepth = 0   
   	self.currentDepthLimit = 0
 	
@@ -31,24 +31,23 @@ class CustomPlayer(Player):
         :return: Action, the next move
         """
         result = None
-	success = False
 	maxDepthLimit = state.M*state.N+1
 
 	while self.is_time_up() == False and self.currentDepthLimit <= maxDepthLimit:
           """Clear the transposition table"""
-	  self.transposition = set() 
 	  self.currentDepthLimit += 1
 
           u = float("inf")
 	  v = float("-inf")
 	  result = None
 		
-	  self.transposition.add(state.ser())
+	  self.transposition[state.ser()] = result
 	  for a in state.actions():
 	    if state.result(a).ser() in self.transposition:
-	      break
-	    self.transposition.add(state.result(a).ser())
-            new = self.max_value(state.result(a), float("-inf"), float("inf"), 1)
+	      new = self.transposition[state.result(a).ser()]
+	    else:
+              new = self.max_value(state.result(a), float("-inf"), float("inf"), 1)
+	      self.transposition[state.result(a).ser()] = new 
 	    if new >= v:
 	      v = new
 	      result = a
@@ -58,7 +57,6 @@ class CustomPlayer(Player):
 	return result
 
     def max_value(self, state, alpha, beta, depth):
-#iself.maxDepth = max(self.maxDepth, depth)
 	if state.is_terminal():
 	  return state.utility(self)
 
@@ -72,9 +70,10 @@ class CustomPlayer(Player):
 
 	for a in state.actions():
 	  if state.result(a).ser() in self.transposition:
-	    break
-	  u = max(u, self.min_value(state.result(a), alpha, beta, depth+1))
-	  self.transposition.add(state.result(a).ser())
+	    u = self.transposition[state.result(a).ser()]
+	  else:
+	    u = max(u, self.min_value(state.result(a), alpha, beta, depth+1))
+	    self.transposition[state.result(a).ser()] = u
 	  
 	  if u >= beta:
 	    return u
@@ -85,7 +84,6 @@ class CustomPlayer(Player):
 
 
     def min_value(self, state, alpha, beta, depth):
-#	self.maxDepth = max(self.maxDepth, depth)
 	if state.is_terminal():
 	  return state.utility(self)
 
@@ -99,10 +97,10 @@ class CustomPlayer(Player):
 
 	for a in state.actions():
 	  if state.result(a).ser() in self.transposition:
-	    break
-	  self.transposition.add(state.result(a).ser())
-	  u = min(u, self.max_value(state.result(a), alpha, beta, depth+1))
-
+	    u = self.transposition[state.result(a).ser()]
+	  else:
+	    u = min(u, self.max_value(state.result(a), alpha, beta, depth+1))
+            self.transposition[state.result(a).ser()] = u
 	  if u <= alpha:
 	    return u
 
