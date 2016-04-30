@@ -6,7 +6,7 @@ from assignment2 import Player, State, Action
 
 class AlphaBetaPlayer(Player):
 
-    transposition = {}
+#transposition = {}
 
     def move(self, state):
         """Calculates the best move from the given board using the minimax
@@ -17,9 +17,9 @@ class AlphaBetaPlayer(Player):
         u = float("inf")
 	v = float("-inf")
 	result = None
-
+	self.transposition = {}
 	for a in state.actions():
-          new = self.min_value(state.result(a), float("-inf"), float("inf"))
+	  new = self.min_value(state.result(a), float("-inf"), float("inf"))
 	  if new > v:
 	    v = new
 	    result = a
@@ -41,15 +41,18 @@ class AlphaBetaPlayer(Player):
 	  else:
 	    v = self.min_value(state.result(a), alpha, beta)
 	  u = max(u,v)   
-	  self.transposition[state.result(a).ser()] = u
+#  self.transposition[state.ser()] = u
 	  
 	  if u >= beta:
 	    return u
 	  alpha = max(alpha, u)
+	
+        self.transposition[state.ser()] = u
 	return u
 
 
     def min_value(self, state, alpha, beta):
+#	if state.ser in self.
 	if state.is_terminal():
 	  return state.utility(self)
 	if len(state.actions()) == 0:
@@ -61,9 +64,10 @@ class AlphaBetaPlayer(Player):
 	  else:
 	    v = self.max_value(state.result(a), alpha, beta)
 	  u = min(u,v)  
-	  self.transposition[state.result(a).ser()] = u
 	  
 	  if u <= alpha:
 	    return u
 	  beta = min(beta, u)
+	
+	self.transposition[state.ser()] = u
 	return u

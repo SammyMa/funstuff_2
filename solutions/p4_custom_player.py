@@ -18,9 +18,8 @@ class CustomPlayer(Player):
         it won't work under time limit.
         """
   	self.transposition = {}
-        self.maxDepth = 0   
   	self.currentDepthLimit = 0
-	
+	self.counter = 0	
         pass
 
     def move(self, state):
@@ -31,81 +30,92 @@ class CustomPlayer(Player):
         :return: Action, the next move
         """
         result = None
-	maxDepthLimit = state.M*state.N+1
+        self.currentDepthLimit = 0	
+	self.transposition = {}
+	self.counter = 0
 
-	while self.is_time_up() == False and self.currentDepthLimit <= maxDepthLimit:
-          """Clear the transposition table"""
-	  self.currentDepthLimit += 1
-
+	while True:
           u = float("inf")
 	  v = float("-inf")
+	  self.counter = 0
 	  result = None
-		
-	  self.transposition[state.ser()] = result
+	  self.transposition = {}
 	  for a in state.actions():
-	    if state.result(a).ser() in self.transposition:
-	      new = self.transposition[state.result(a).ser()]
-	    else:
-              new = self.max_value(state.result(a), float("-inf"), float("inf"), 1)
-	      self.transposition[state.result(a).ser()] = new 
-	    if new >= v:
+            new = self.min_value(state.result(a), float("-inf"), float("inf"),self.currentDepthLimit)
+	    if new > v:
 	      v = new
 	      result = a
-	    """return the result is time is up, disregarding of whether this is the best move or not"""
- 	    if self.is_time_up() == True:
+
+	    elif new == v:
+	      if a.index < result.index:
+	        result = a
+	    if self.is_time_up():
 	      return result
+	  
+	  self.currentDepthLimit += 1
+	  """If we never use evaluate function, it means all state are terminated, so return whatever the result is"""
+	  if self.counter == 0:
+	    break
+	  if self.is_time_up():
+ 	    return result
 	return result
 
     def max_value(self, state, alpha, beta, depth):
+	if state.ser() in self.transposition:
+	  return self.transposition[state.ser()]
 	if state.is_terminal():
 	  return state.utility(self)
 
-	if self.is_time_up() or depth > self.currentDepthLimit:
-	  return self.evaluate(state, state.player_row)
+	if self.is_time_up() or depth == 0: 
+	  self.counter += 1
+	  return  self.evaluate(state,self.row)
 
 	if len(state.actions()) == 0:
-	  return self.min_value(state.result(None), alpha, beta, depth)
+	  return self.min_value(state.result(None), alpha, beta, depth-1)
 
 	u = float("-inf")
 
 	for a in state.actions():
 	  if state.result(a).ser() in self.transposition:
-	    u = self.transposition[state.result(a).ser()]
+	    v = self.transposition[state.result(a).ser()]
 	  else:
-	    u = max(u, self.min_value(state.result(a), alpha, beta, depth+1))
-	    self.transposition[state.result(a).ser()] = u
+	    v = self.min_value(state.result(a), alpha, beta, depth-1)
 	  
+	  u = max(u,v)
 	  if u >= beta:
 	    return u
-
 	  alpha = max(alpha, u)
-
+        self.transposition[state.ser()] = u
 	return u
 
 
     def min_value(self, state, alpha, beta, depth):
+	if state.ser() in self.transposition:
+	  return self.transposition[state.ser()]
 	if state.is_terminal():
 	  return state.utility(self)
 
-	if self.is_time_up() or depth > self.currentDepthLimit:
-	  return self.evaluate(state, state.player_row)
+	if self.is_time_up() or depth == 0:
+	  self.counter += 1 
+	  return self.evaluate(state, self.row)
 
 	if len(state.actions()) == 0:
-	  return self.max_value(state.result(None), alpha, beta, depth)
+	  return self.max_value(state.result(None), alpha, beta, depth-1)
 	
 	u = float("inf")
 
 	for a in state.actions():
 	  if state.result(a).ser() in self.transposition:
-	    u = self.transposition[state.result(a).ser()]
+	    v = self.transposition[state.result(a).ser()]
 	  else:
-	    u = min(u, self.max_value(state.result(a), alpha, beta, depth+1))
-            self.transposition[state.result(a).ser()] = u
+	    v = self.max_value(state.result(a), alpha, beta, depth-1)
+          
+	  u = min(u,v)
 	  if u <= alpha:
 	    return u
-
+      
 	  beta = min(beta, u)
-
+        self.transposition[state.ser()] = u
 	return u
 
 
@@ -126,5 +136,5 @@ class CustomPlayer(Player):
 	  result = (stoneonmyside - stoneonopside) / (2*(state.M)*(state.N))
 	else:
 	  result = (stoneonopside - stoneonmyside) / (2*(state.M)*(state.N))
-	#print("result is %f" % result)
+	
 	return result
